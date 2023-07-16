@@ -3,6 +3,55 @@ module Binance
     class Request
       include HTTParty
       class << self
+        def send_fapi!(api_key_type: :none, headers: {}, method: :get, path: "/", params: {}, security_type: :none, tld: Configuration.tld, api_key: nil, api_secret_key: nil)
+          Configuration.validate_tld!(tld)
+          # binance_uri = ENV['BINANCE_TEST_NET_ENABLE'] ? "https://testnet.binance.vision" : "https://fapi.binance.#{tld}"
+
+          test_url = Rails.application.credentials[Rails.env.to_sym][:binance][:test_url]
+          # puts "test_url: #{test_url}"
+          # puts "ENV['BINANCE_TEST']: #{ENV['BINANCE_TEST']}"
+
+         binance_uri = ENV['BINANCE_TEST'] ? test_url : "https://fapi.binance.#{tld}"
+         # binance_uri = "https://fapi.binance.#{tld}"
+
+          #puts "\n binance_uri: #{binance_uri}"
+          #puts "\n method: #{method}"
+
+          self.base_uri binance_uri
+
+          raise Error.new(message: "invalid security type #{security_type}") unless security_types.include?(security_type)
+
+          #puts "\n --- #send_fapi! api_key: #{api_key}"
+
+          all_headers = default_headers(api_key_type: api_key_type, security_type: security_type, api_key: api_key)
+          #puts "\n --- #send_fapi! all_headers: #{all_headers}"
+
+          params.delete_if { |k, v| v.nil? }
+          if %w(trade user_data).include?(security_type&.to_s)
+            signature = signed_request_signature(params: params, api_secret_key: api_secret_key)
+            #puts "\n signature: #{signature}"
+
+            params.merge!(signature: signature)
+          end
+          #puts "\n params: #{params}"
+
+
+          # send() is insecure so don't use it.
+          case method
+          when :get
+            response = get(path, headers: all_headers, query: params)
+          when :post
+            response = post(path, query: params, headers: all_headers)
+          when :put
+            response = put(path, query: params, headers: all_headers)
+          when :delete
+            response = delete(path, query: params, headers: all_headers)
+          else
+            raise Error.new(message: "invalid http method used: #{method}")
+          end
+          process!(response: response || "{}")
+        end
+
         def send!(api_key_type: :none, headers: {}, method: :get, path: "/", params: {}, security_type: :none, tld: Configuration.tld, api_key: nil, api_secret_key: nil)
           Configuration.validate_tld!(tld)
           binance_uri = ENV['BINANCE_TEST_NET_ENABLE'] ? "https://testnet.binance.vision" : "https://api.binance.#{tld}"

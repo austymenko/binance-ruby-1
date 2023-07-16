@@ -2,6 +2,60 @@ module Binance
   module Api
     class Order
       class << self
+
+        def position_risk(recvWindow: 5000, symbol: nil, api_key: nil, api_secret_key: nil)
+          # puts "\n positionRisk"
+
+          timestamp = Configuration.timestamp
+          params = { recvWindow: recvWindow, symbol: symbol, timestamp: timestamp }
+          Request.send_fapi!(api_key_type: :read_info, path: "/fapi/v2/positionRisk",
+                        params: params, security_type: :user_data, tld: Configuration.tld, api_key: api_key,
+                        api_secret_key: api_secret_key)
+
+        end
+
+        def new_limit_order(symbol: nil, price: nil, stop_price: nil, type: nil, side: nil, position_side: nil, quantity: nil, recvWindow: 5000, api_key: nil, api_secret_key: nil, path: "/fapi/v1/order")
+          Rails.logger.info "Binance::Api::Order #new_order #{DateTime.now.to_s}"
+
+          timestamp = Configuration.timestamp
+          params = {
+            recvWindow: recvWindow,
+            symbol: symbol,
+            side: side,
+            type: type,
+            quantity: quantity,
+            positionSide: position_side,
+            price: price,
+            stopPrice: stop_price,
+            timestamp: timestamp
+          }
+          Request.send_fapi!(api_key_type: :read_info, path: path,
+                             method: :post,
+                             params: params, security_type: :user_data, tld: Configuration.tld, api_key: api_key,
+                             api_secret_key: api_secret_key)
+
+        end
+
+        def new_order(symbol: nil, type: nil, side: nil, position_side: nil, quantity: nil, recvWindow: 5000, api_key: nil, api_secret_key: nil)
+          #puts "\n new_order"
+
+          timestamp = Configuration.timestamp
+          params = {
+            recvWindow: recvWindow,
+            symbol: symbol,
+            side: side,
+            type: type,
+            quantity: quantity,
+            positionSide: position_side,
+            timestamp: timestamp
+          }
+          Request.send_fapi!(api_key_type: :read_info, path: "/fapi/v1/order",
+                             method: :post,
+                             params: params, security_type: :user_data, tld: Configuration.tld, api_key: api_key,
+                             api_secret_key: api_secret_key)
+
+        end
+
         def all!(limit: 500, orderId: nil, recvWindow: 5000, symbol: nil, api_key: nil, api_secret_key: nil)
           raise Error.new(message: "max limit is 500") unless limit <= 500
           raise Error.new(message: "symbol is required") if symbol.nil?
@@ -22,6 +76,14 @@ module Binance
                         api_secret_key: api_secret_key)
         end
 
+        def all_open_fapi!(recvWindow: 5000, symbol: nil, api_key: nil, api_secret_key: nil)
+          timestamp = Configuration.timestamp
+          params = { recvWindow: recvWindow, symbol: symbol, timestamp: timestamp }
+          Request.send!(api_key_type: :read_info, path: "/fapi/v1/allOrders",
+                        params: params, security_type: :user_data, tld: Configuration.tld, api_key: api_key,
+                        api_secret_key: api_secret_key)
+        end
+        
         def cancel!(orderId: nil, originalClientOrderId: nil, newClientOrderId: nil, recvWindow: nil, symbol: nil,
                     api_key: nil, api_secret_key: nil)
           raise Error.new(message: "symbol is required") if symbol.nil?
