@@ -79,7 +79,7 @@ module Binance
         def all_open_fapi!(recvWindow: 5000, symbol: nil, api_key: nil, api_secret_key: nil)
           timestamp = Configuration.timestamp
           params = { recvWindow: recvWindow, symbol: symbol, timestamp: timestamp }
-          Request.send!(api_key_type: :read_info, path: "/fapi/v1/allOrders",
+          Request.send_fapi!(api_key_type: :read_info, path: "/fapi/v1/openOrders",
                         params: params, security_type: :user_data, tld: Configuration.tld, api_key: api_key,
                         api_secret_key: api_secret_key)
         end
