@@ -83,7 +83,15 @@ module Binance
                         params: params, security_type: :user_data, tld: Configuration.tld, api_key: api_key,
                         api_secret_key: api_secret_key)
         end
-        
+
+        def all_fapi!(recvWindow: 5000, symbol: nil, api_key: nil, api_secret_key: nil)
+          timestamp = Configuration.timestamp
+          params = { recvWindow: recvWindow, symbol: symbol, timestamp: timestamp }
+          Request.send_fapi!(api_key_type: :read_info, path: "/fapi/v1/allOrders",
+                             params: params, security_type: :user_data, tld: Configuration.tld, api_key: api_key,
+                             api_secret_key: api_secret_key)
+        end
+
         def cancel!(orderId: nil, originalClientOrderId: nil, newClientOrderId: nil, recvWindow: nil, symbol: nil,
                     api_key: nil, api_secret_key: nil)
           raise Error.new(message: "symbol is required") if symbol.nil?
