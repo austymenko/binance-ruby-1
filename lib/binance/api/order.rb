@@ -92,9 +92,9 @@ module Binance
                              api_secret_key: api_secret_key)
         end
 
-        def cancel_order_fapi!(recvWindow: 5000, orderId: nil, symbol: nil, api_key: nil, api_secret_key: nil)
+        def cancel_order_fapi!(recvWindow: 5000, order_id: nil, symbol: nil, api_key: nil, api_secret_key: nil)
           timestamp = Configuration.timestamp
-          params = { recvWindow: recvWindow, symbol: symbol, orderId: orderId, timestamp: timestamp }
+          params = { recvWindow: recvWindow, symbol: symbol, orderId: order_id, timestamp: timestamp }
           Request.send_fapi!(api_key_type: :read_info, path: "/fapi/v1/order",
                              method: :delete,
                              params: params, security_type: :user_data, tld: Configuration.tld, api_key: api_key,
