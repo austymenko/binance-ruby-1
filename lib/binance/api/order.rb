@@ -36,6 +36,31 @@ module Binance
 
         end
 
+        # symbol: nil, price: nil, stop_price: nil, type: nil, side: nil, position_side: nil,
+        #   quantity: nil,  api_key: nil, api_secret_key: nil
+        def new_limit_order_hash_param(hash_param:, recvWindow: 5000, path: "/fapi/v1/order")
+          Rails.logger.info "Binance::Api::Order #new_limit_order_hash_param #{DateTime.now.to_s}"
+
+          timestamp = Configuration.timestamp
+          params = {
+            recvWindow: recvWindow,
+            symbol: hash_param[:symbol],
+            side: hash_param[:side],
+            type: hash_param[:type],
+            quantity: hash_param[:quantity],
+            positionSide: hash_param[:position_side],
+            price: hash_param[:price],
+            stopPrice: hash_param[:stop_price],
+            timestamp: timestamp
+          }
+          Request.send_fapi!(api_key_type: :read_info, path: path,
+                             method: :post,
+                             params: params, security_type: :user_data, tld: Configuration.tld,
+                             api_key: hash_param[:api_key],
+                             api_secret_key: hash_param[:api_secret_key])
+
+        end
+
         def new_order(symbol: nil, type: nil, side: nil, position_side: nil, quantity: nil, recvWindow: 5000, api_key: nil, api_secret_key: nil)
           #puts "\n new_order"
 
