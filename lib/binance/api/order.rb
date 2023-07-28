@@ -27,7 +27,7 @@ module Binance
             positionSide: position_side,
             price: price,
             stopPrice: stop_price,
-            timestamp: timestamp
+            timestamp: timestamp,
           }
           Request.send_fapi!(api_key_type: :read_info, path: path,
                              method: :post,
@@ -51,7 +51,8 @@ module Binance
             positionSide: hash_param[:position_side],
             price: hash_param[:price],
             stopPrice: hash_param[:stop_price],
-            timestamp: timestamp
+            timestamp: timestamp,
+            timeInForce: 'GTC',
           }
           Request.send_fapi!(api_key_type: :read_info, path: path,
                              method: :post,
