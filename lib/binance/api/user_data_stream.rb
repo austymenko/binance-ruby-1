@@ -10,6 +10,11 @@ module Binance
                         api_key: api_key, api_secret_key: api_secret_key)
         end
 
+        def start_fapi!(api_key: nil, api_secret_key: nil)
+          Request.send_fapi!(api_key_type: :none, method: :post, path: "/api/v1/userDataStream",
+                        security_type: :user_stream, api_key: api_key, api_secret_key: api_secret_key)[:listenKey]
+        end
+        
         def start!(api_key: nil, api_secret_key: nil)
           Request.send!(api_key_type: :none, method: :post, path: "/api/v1/userDataStream",
                         security_type: :user_stream, api_key: api_key, api_secret_key: api_secret_key)[:listenKey]
