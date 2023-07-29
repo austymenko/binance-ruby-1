@@ -2,8 +2,13 @@ module Binance
   class WebSocket < Faye::WebSocket::Client
     class Error < StandardError; end
 
-    def initialize(on_open: nil, on_close: nil)
-      super "wss://stream.binance.com:9443/stream", nil, ping: 180
+    # def initialize(ws_url: "wss://fstream.binance.com/ws", on_open: nil, on_close: nil)
+    def initialize(ws_url: "wss://stream.binancefuture.com/ws", on_open: nil, on_close: nil)
+      # super "wss://stream.binance.com:9443/stream", nil, ping: 180
+
+      url_to_use = ws_url || "wss://fstream.binance.com/stream"
+      super url_to_use, nil, ping: 180
+      puts "\n #{url_to_use} \n"
 
       @request_id_inc = 0
       @user_stream_handlers = {}
@@ -81,7 +86,10 @@ module Binance
     private
 
     def process_data(data)
+      puts "\n #WebSocket process_data"
       json = JSON.parse(data, symbolize_names: true)
+      puts "\n #WebSocket process_data json: #{json.inspect}"
+
       if json[:error]
         raise Error.new("(#{json[:code]}) #{json[:msg]}")
       elsif json.key?(:result)
@@ -91,8 +99,11 @@ module Binance
         when :kline
           @candlesticks_handler&.call(json[:stream], json[:data])
         when :outboundAccountPosition
+          puts "\n #WebSocket process_data outboundAccountPosition"
         when :balanceUpdate
+          puts "\n #WebSocket process_data balanceUpdate"
         when :executionReport # order update
+          puts "\n #WebSocket process_data executionReport"
           listen_key = json[:stream]
           @user_stream_handlers[listen_key]&.call(listen_key, json[:data])
         when :trade
