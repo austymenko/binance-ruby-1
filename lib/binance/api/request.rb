@@ -91,11 +91,12 @@ module Binance
 
         def process!(response:)
           json = begin
+                   puts "process! response.body: #{response.body}"
               JSON.parse(response.body, symbolize_names: true)
             rescue JSON::ParserError => error
               puts "process! ERROR: #{error.message}"
               puts "process! backtrace: #{error.backtrace}"
-              
+
               # binance 500 errors are html format
               raise Error.new(message: error)
             end
