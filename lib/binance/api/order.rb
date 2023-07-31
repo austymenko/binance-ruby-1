@@ -22,7 +22,7 @@ module Binance
         def ticker_price(recvWindow: 5000, symbol: nil, api_key: nil, api_secret_key: nil)
           timestamp = Configuration.timestamp
           params = { recvWindow: recvWindow, symbol: symbol, timestamp: timestamp }
-          Request.send_fapi!(api_key_type: :read_info, path: "/api/v3/ticker/price",
+          Request.send_fapi!(api_key_type: :read_info, path: "/api/v1/ticker/price",
                              params: params, security_type: :user_data, tld: Configuration.tld, api_key: api_key,
                              api_secret_key: api_secret_key)
 
